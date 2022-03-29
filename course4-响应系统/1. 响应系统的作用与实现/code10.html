@@ -103,10 +103,14 @@ const p = Promise.resolve()
 
 let isFlushing = false
 function flushJob() {
+  console.log("isFlushing", isFlushing)
   if (isFlushing) return
   isFlushing = true
   p.then(() => {
-    jobQueue.forEach(job => job())
+    jobQueue.forEach(job => {
+      console.log("执行jobQueue")
+      job()
+    })
   }).finally(() => {
     isFlushing = false
   })
@@ -117,6 +121,7 @@ effect(() => {
   console.log(obj.foo)
 }, {
   scheduler(fn) {
+    console.log(111)
     jobQueue.add(fn)
     flushJob()
   }

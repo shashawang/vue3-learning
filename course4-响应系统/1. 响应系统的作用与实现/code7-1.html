@@ -10,6 +10,43 @@ newSet.forEach(item => {
   console.log(999)
 })
 
+set = {
+  values: [],
+  map: {},
+}
 
+set.add(1)
 
+set = {
+  values: [1],
+  map: {
+    1: {value: ''}
+  }
+}
+
+set.add = (value) => {
+  if (map(value)) {
+    return;
+  } else {
+    this.values.push(value);
+    this.map[value] = true;
+  }
+}
+
+set.has = (value) => {
+  this.map[value];
+}
+
+set.delete = (value) => {
+  if (this.map(value)) {
+    this.values.filter((item) => item !== value);
+    delete this.map[value];
+  }
+}
+
+set.forEach = (fn) => this.values.forEach(fn);
+
+[1,3,4,5,6,7,2]
+
+[1,2,3,4,5,6,7]
 </script>

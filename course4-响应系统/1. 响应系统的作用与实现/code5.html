@@ -1,7 +1,7 @@
 <body></body>
 <script>
-const obj1 = {}
-const obj2 = {}
+let obj1 = {a: 1}
+let obj2 = {a: 2}
 
 const map1 = new WeakMap()
 map1.set(obj1, 1)
@@ -12,5 +12,12 @@ map2.set(obj2, 2)
 obj1 = null
 obj2 = null
 
+console.log('map1', map1)
+console.log('map2', map2)
 map1.get()
+console.log('map1.get()', map1.get(obj1))
+// console.log('map1.get()', map1.get(), map1.keys())
+console.log('map2.get()', map2.get(obj2), map2.keys())
+console.log('obj1', obj1)
+console.log('obj2', obj2)
 </script>

@@ -53,7 +53,7 @@ function trigger(target, key) {
 let activeEffect
 function effect(fn) {
   const effectFn = () => {
-    cleanup(effectFn)
+    // cleanup(effectFn)
     // 当调用 effect 注册副作用函数时，将副作用函数复制给 activeEffect
     activeEffect = effectFn
     fn()
@@ -76,6 +76,13 @@ effect(() => {
   console.log('effect run')
   document.body.innerText = obj.ok ? obj.text : 'not'
 })
+
+// effect(() => {
+//   console.log('effect2 run')
+//   const div = document.createElement('div')
+//   div.innerHTML = obj.ok
+//   document.body.appendChild(div)
+// })
 
 setTimeout(() => {
   obj.ok = false

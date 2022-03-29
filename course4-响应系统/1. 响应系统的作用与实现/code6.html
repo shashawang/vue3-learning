@@ -35,6 +35,7 @@ function track(target, key) {
     depsMap.set(key, (deps = new Set()))
   }
   deps.add(activeEffect)
+  console.log('bucket', bucket)
 }
 
 function trigger(target, key) {
