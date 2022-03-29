@@ -1,0 +1,116 @@
+<body>
+  <div id="effect_dom"></div>
+</body>
+
+<script>
+function Render(obj, root) {
+  if (typeof obj.tag == 'string') {
+    mountElement(obj, root)
+  } else if (typeof obj.tag == 'function') {
+    // mountComponent(obj, root)
+    const subtree = obj.tag()
+    Render(subtree, root)
+  } else if (typeof obj.tag == 'object') {
+    // mountComponent(obj, root)
+    const subtree = vnode.tag.render()
+    Render(subtree, root)
+  }
+}
+
+function mountElement(obj, container) {
+  const el = document.createElement(obj.tag)
+  for (const key in obj.props) {
+    if (/^on/.test(key)) {
+      el.addEventListener(
+        key.substr(2).toLowerCase(),
+        obj.props[key]
+      )
+    }
+  }
+
+  if (typeof obj.children === 'string') {
+    const text = document.createTextNode(obj.children)
+    el.appendChild(text)
+  } else if (Array.isArray(obj.children)) {
+    obj.children.forEach(child => Render(child, el))
+  }
+  container.appendChild(el)
+}
+
+function mountComponent(obj, container) {
+  const subtree = obj.tag()
+  Render(subtree, container)
+}
+
+
+const obj = {
+  tag: 'div',
+  // children: [
+  //   { tag: 'span', children: 'hello world' }
+  // ],
+  props: {
+    onClick: () => alert('hello')
+  },
+  children: 'click me'
+}
+
+const MyComponent = function () {
+  return {
+    tag: 'div',
+    props: {
+      onClick: () => alert('render component')
+    },
+    children: 'click me'
+  }
+}
+const vnode = {
+  tag: MyComponent
+}
+// 渲染到 body 下
+Render(vnode, document.body)
+
+const bucket = new Set()
+const data = {text: 'hello effect'}
+
+const proxyData = new Proxy(data, {
+  get(target, key) {
+    bucket.add(effect)
+    console.log('bucket: ', bucket);
+    return target[key]
+  },
+  set(target, key, newVal) {
+    target[key] = newVal
+    bucket.forEach(fn => fn())
+    console.log('bucket: ', bucket);
+  }
+})
+
+let activeEffect
+function effect(fn) {
+  console.log('fn: ', fn);
+  activeEffect = fn
+  fn()
+}
+effect(() => {
+  const div = document.getElementById('effect_dom')
+  div.innerHTML = proxyData.text
+  // document.body.appendChild(div)
+  // document.body.innerText = proxyData.text
+})
+// effect(() => {
+//   const div = document.createElement('div')
+//   div.innerHTML = proxyData.text2
+//   // document.body.appendChild(div)
+//   // document.body.innerText = proxyData.text
+// })
+setTimeout(() => {
+  console.log('change text');
+  proxyData.text = 'change text'
+  console.log('data: ', data);
+}, 1000)
+setTimeout(() => {
+  console.log('add key');
+  proxyData.text2 = 'add key'
+  console.log('data: ', data);
+}, 1000)
+</script>
