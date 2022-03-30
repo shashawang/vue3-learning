@@ -85,39 +85,45 @@
 
   function track(target, key) {
     let depsMap = bucket.get(target)
-      if (!depsMap) {
-        bucket.set(target, (depsMap = new Map()))
-      }
-      let deps = depsMap.get(key)
-      if (!deps) {
-        deps = new Set()
-      }
-      deps.add(activeEffect)
-      activeEffect.deps.push(deps)
+    if (!depsMap) {
+      bucket.set(target, (depsMap = new Map()))
+    }
+    // console.log('depsMap: ', depsMap);
+    let deps = depsMap.get(key)
+    if (!deps) {
+      depsMap.set(key, (deps = new Set()))
+    }
+    deps.add(activeEffect)
+    activeEffect.deps.push(deps)
+    console.log('bucket: ', bucket);
   }
 
   function trigger(target, key) {
     const depsMap = bucket.get(target)
     if (!depsMap) return
     const effects = depsMap.get(key)
-    effects && effects.forEach(fn => fn())
+
+    const effectsToRun = new Set()
+    effects && effects.forEach(effectFn => effectsToRun.add(effectFn))
+    effectsToRun && effectsToRun.forEach(fn => fn())
   }
   
   let activeEffect
   const effectStack = []
-  function effect(fn) {
+  function effect(fn, tag) {
     const effectFn = () => {
+      console.log('tag: ', tag);
       cleanup(effectFn)
       // activeEffect = effectFn
-      activeEffect = fn
-      activeEffect.deps = []
+      activeEffect = effectFn
       fn()
     }
     effectFn.deps = []
     effectFn()
-    console.log('fn: ', fn);
+    // console.log('fn: ', fn);
   }
   function cleanup(effectFn) {
+    console.log('effectFn.deps: ', (effectFn.deps));
     for (let i = 0; i < effectFn.deps.length; i++) {
       const deps = effectFn.deps[i]
       deps.delete(effectFn)
@@ -129,11 +135,14 @@
     // const div = document.getElementById('effect_dom')
     // div.innerHTML = proxyData.text
     document.body.innerText = proxyData.ok ? proxyData.text : 'not'
-  })
+  }, 111)
+  effect(() => {
+    console.log('proxyData.ok: ', proxyData.ok);
+  }, 222)
   setTimeout(() => {
     proxyData.ok = false
     setTimeout(() => {
-      proxyData.text = ''
+      proxyData.text = '11'
     }, 1000)
   }, 1000)
   // setTimeout(() => {
