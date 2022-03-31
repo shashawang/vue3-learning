@@ -88,11 +88,14 @@ function cleanup(effectFn) {
 
 
 // =========================
-
+let temp
 effect(() => {
   console.log(99)
-  obj.foo++
+  // temp = obj.foo++
+  temp = obj.foo
 })
+obj.foo = 2
+console.log('temp: ', temp);
 
 
 

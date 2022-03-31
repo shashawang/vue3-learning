@@ -70,7 +70,7 @@
   Render(vnode, document.body)
   
   const bucket = new WeakMap()
-  const data = {text: 'hello effect', ok: true}
+  const data = {text: 'hello effect', ok: true, foo: true, bar: true, baz: 1}
   
   const proxyData = new Proxy(data, {
     get(target, key) {
@@ -104,47 +104,89 @@
     const effects = depsMap.get(key)
 
     const effectsToRun = new Set()
-    effects && effects.forEach(effectFn => effectsToRun.add(effectFn))
-    effectsToRun && effectsToRun.forEach(fn => fn())
+    effects && effects.forEach(effectFn => {
+      if (effectFn != activeEffect) {
+        effectsToRun.add(effectFn)
+      }
+    })
+    effectsToRun && effectsToRun.forEach(fn => {
+      // if (!(fn == activeEffect && fn.isExcuting)) {
+        fn()
+      // }
+    })
   }
   
   let activeEffect
   const effectStack = []
   function effect(fn, tag) {
     const effectFn = () => {
-      console.log('tag: ', tag);
+      // console.log('tag: ', tag);
       cleanup(effectFn)
-      // activeEffect = effectFn
       activeEffect = effectFn
+      // effectFn.isExcuting = true
+      effectStack.push(effectFn)
       fn()
+      effectFn.isExcuting = false
+      effectStack.pop()
+      activeEffect = effectStack[effectStack.length - 1]
     }
     effectFn.deps = []
+    // effectFn.isExcuting = false
     effectFn()
     // console.log('fn: ', fn);
   }
   function cleanup(effectFn) {
-    console.log('effectFn.deps: ', (effectFn.deps));
+    // console.log('effectFn.deps: ', (effectFn.deps));
     for (let i = 0; i < effectFn.deps.length; i++) {
       const deps = effectFn.deps[i]
       deps.delete(effectFn)
     }
     effectFn.deps.length = 0
   }
+  let temp
   effect(() => {
-    console.log('effect1 run');
-    // const div = document.getElementById('effect_dom')
-    // div.innerHTML = proxyData.text
-    document.body.innerText = proxyData.ok ? proxyData.text : 'not'
-  }, 111)
-  effect(() => {
-    console.log('proxyData.ok: ', proxyData.ok);
-  }, 222)
+    temp = proxyData.baz + 1
+    // proxyData.baz = proxyData.baz + 1
+    // proxyData.baz = 21
+    // console.log('proxyData.baz: ', proxyData.baz);
+  })
+  // console.log('proxyData.baz: ', proxyData.baz);
+
+  // let temp1, temp2
+
+  // effect(function effectFn1() {
+  //   console.log('effectFn1 执行')
+  //   temp1 = proxyData.foo
+  //   console.log('temp1: ', temp1);
+  //   effect(function effectFn2() {
+  //     console.log('effectFn2 执行')
+  //     temp2 = proxyData.bar
+  //     console.log('temp2: ', temp2);
+  //   })
+  // })
   setTimeout(() => {
-    proxyData.ok = false
-    setTimeout(() => {
-      proxyData.text = '11'
-    }, 1000)
-  }, 1000)
+    proxyData.baz = 6
+    console.log('temp: ', temp);
+  }, 1000);
+  // setTimeout(() => {
+  //   proxyData.bar = 111
+  // }, 2000);
+
+  // effect(() => {
+  //   console.log('effect1 run');
+  //   // const div = document.getElementById('effect_dom')
+  //   // div.innerHTML = proxyData.text
+  //   document.body.innerText = proxyData.ok ? proxyData.text : 'not'
+  // }, 111)
+  // effect(() => {
+  //   console.log('proxyData.ok: ', proxyData.ok);
+  // }, 222)
+  // setTimeout(() => {
+  //   proxyData.ok = false
+  //   setTimeout(() => {
+  //     proxyData.text = '11'
+  //   }, 1000)
+  // }, 1000)
   // setTimeout(() => {
     // console.log('effect2 run');
     // const div = document.createElement('div')
