@@ -35,7 +35,8 @@ function track(target, key) {
     depsMap.set(key, (deps = new Set()))
   }
   deps.add(activeEffect)
-  activeEffect.deps.push(deps)
+  // activeEffect.deps.push(deps)
+  console.log('activeEffect.deps: ', activeEffect.deps);
 }
 
 function trigger(target, key) {
@@ -49,10 +50,17 @@ function trigger(target, key) {
 let activeEffect
 function effect(fn) {
     activeEffect = fn
+    cleanup(activeEffect)
     fn()
+    activeEffect.deps = []
 }
 
 function cleanup(effectFn) {
+  effectFn.deps && effectFn.deps.forEach(deps => {
+    if (deps.has(effectFn)) {
+      deps.delete(effectFn)
+    }
+  })
 }
 
 effect(() => {
