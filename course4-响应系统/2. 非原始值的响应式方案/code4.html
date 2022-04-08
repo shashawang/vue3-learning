@@ -26,10 +26,12 @@ const p = new Proxy(obj, {
   },
   has(target, key) {
     track(target, key)
+    console.log('has: ', key);
     return Reflect.has(target, key)
   },
   ownKeys(target) {
     track(target, ITERATE_KEY)
+    console.log('ownKeys-ITERATE_KEY: ', ITERATE_KEY);
     return Reflect.ownKeys(target)
   }
 })
